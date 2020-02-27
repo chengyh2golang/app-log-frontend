@@ -8,12 +8,14 @@
 <script>
   import HomeHeader from './components/Header'
   import HomeContent from './components/Content'
+
     export default {
         name: "Home",
         components: {
             HomeHeader,
-            HomeContent
-        }
+            HomeContent,
+        },
+
     }
 </script>
 

@@ -4,7 +4,7 @@
         <img class="img" src="../../../assets/logo.png"  />
       </div>
       <div class="app-name">
-        <p>网贷平台应用日志检索系统</p>
+        <p>网贷平台应用日志查询系统</p>
       </div>
     </div>
 </template>

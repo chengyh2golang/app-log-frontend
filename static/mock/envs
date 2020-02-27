@@ -1,0 +1,38 @@
+{
+  "ret": true,
+  "all_env_info":
+  [
+    {
+      "13": [
+        {"13-ns1": [
+          {"13-ns1-app01": ["13-ns1-app01-pod01","13-ns1-app01-pod02","13-ns1-app01-pod03"]},
+          {"13-ns1-app02": ["13-ns1-app02-pod01","13-ns1-app02-pod02","13-ns1-app02-pod03"]},
+          {"13-ns1-app03": ["13-ns1-app03-pod01","13-ns1-app03-pod02","13-ns1-app03-pod03"]},
+          {"13-ns1-app04": ["13-ns1-app04-pod01","13-ns1-app04-pod02","13-ns1-app04-pod03"]}
+        ]},
+        {"13-ns2":
+        [
+          {"13-ns2-app01": ["13-ns2-app01-pod01","13-ns2-app01-pod02","13-ns2-app01-pod03"]},
+          {"13-ns2-app02": ["13-ns2-app02-pod01","13-ns2-app02-pod02","13-ns2-app02-pod03"]},
+          {"13-ns2-app03": ["13-ns2-app03-pod01","13-ns2-app03-pod02","13-ns2-app03-pod03"]}
+        ]}
+      ]
+    },
+    {
+      "14": [
+        {"14-ns1": [
+          {"14-ns1-app01": ["14-ns1-app01-pod01","14-ns1-app01-pod02","14-ns1-app01-pod03"]},
+          {"14-ns1-app02": ["14-ns1-app02-pod01","14-ns1-app02-pod02","14-ns1-app02-pod03"]},
+          {"14-ns1-app03": ["14-ns1-app03-pod01","14-ns1-app03-pod02","14-ns1-app03-pod03"]}
+        ]},
+        {"14-ns2":
+        [
+          {"14-ns2-app01": ["14-ns2-app01-pod01","14-ns2-app01-pod02","14-ns2-app01-pod03"]},
+          {"14-ns2-app02": ["14-ns2-app02-pod01","14-ns2-app02-pod02","14-ns2-app02-pod03"]},
+          {"14-ns2-app03": ["14-ns2-app03-pod01","14-ns2-app03-pod02","14-ns2-app03-pod03"]}
+        ]}
+      ]
+    }
+  ]
+  }
+
