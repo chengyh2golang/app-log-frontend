@@ -37,7 +37,7 @@
     </div>
     <div class="log-content" v-if="showLog">
       <ul>
-        <li v-for="(item,index) of logList" :key="index">{{item}}</li>
+        <li v-for="item of logList" :key="item.id">{{item.message}}</li>
       </ul>
     </div>
     <div class="sidebar-right">
@@ -57,126 +57,68 @@
             return {
                 refreshLog: false,
                 logList: [],
-                allEnvInfo: [],
+                envClusterInfo: Object,
                 envSelected: '',
                 nsSelected: '',
                 appSelected: '',
-                podSelected: ''
+                podSelected: '',
+                envs: []
             }
         },
         computed: {
             //只有当logList有数据才显示日志内容
             showLog () {
-                return this.logList.length
+                console.log(this.logList.length);
+                return  this.logList.length
             },
             //只有当refreshLog为真，才显示"日志刷新已关闭"
             //否则显示"日志刷新已打开"
             showLogRefresh () {
                 return !this.refreshLog
             },
-            envs () {
-                const envs = [];
-                for (let i = 0,len = this.allEnvInfo.length; i < len; i++) {
-                    for (let key  in this.allEnvInfo[i]) {
-                        envs.push(key)
-                    }
-                }
-                return envs
-            },
             fetchNsByEnv () {
-                //根据envSelected的值来计算出namespace的数组
-                const NsInfoByEnv = [];
-                for (let i = 0,len = this.allEnvInfo.length; i < len; i++) {
-                    //this.allEnvInfo[i]是一个对象
-                    //它的值类似于：{"13": [{"ns1": [{"13-ns1-app01": ["13-ns1-app01-pod01"]}]}]}
-                    let envObj = this.allEnvInfo[i];
-                    for (let envKey  in envObj) {
-                        if ( envKey === this.envSelected) {
-                            //envObj[envKey]是一个数组，数组里的成员是对象，对象的key是namespace的名字
-                            //数组类似于：[{"ns1": [{"13-ns1-app01": ["13-ns1-app01-pod01"]}]}]
-                            //循环这个数组，拿到数组中的对象：{"ns1": [{"13-ns1-app01": ["13-ns1-app01-pod01"]}]}
-                            for (let j = 0,len = (envObj[envKey]).length; j < len; j++) {
-                                //循环这个对象，拿到对象的key，就是我们需要的namespace的值
-                                for (let nsKey  in envObj[envKey][j]) {
-                                    NsInfoByEnv.push(nsKey)
-                                }
-                            }
+                const nsList = [];
+                if (this.envSelected && this.envClusterInfo[this.envSelected]) {
+                    const clusterInfo = this.envClusterInfo[this.envSelected];
+                    for (let i = 0,len = clusterInfo.length; i < len; i++) {
+                        if (nsList.indexOf(clusterInfo[i]['namespace']) === -1) {
+                            nsList.push(clusterInfo[i]['namespace'])
                         }
                     }
                 }
-                return NsInfoByEnv
+                return nsList
             },
             fetchAppByNsAndEnv () {
-                const fetchAppByNsAndEnv = [];
-                //根据envSelected的值和namespace的值来计算出应用的数组
-                for (let i = 0,len = this.allEnvInfo.length; i < len; i++) {
-                    //this.allEnvInfo[i]是一个对象
-                    //它的值类似于：{"13": [{"ns1": [{"13-ns1-app01": ["13-ns1-app01-pod01"]}]}]}
-                    let envObj = this.allEnvInfo[i];
-                    for (let envKey  in envObj) {
-                        if ( envKey === this.envSelected) {
-                            //envObj[envKey]是一个数组，数组里的成员是对象，对象的key是namespace的名字
-                            //数组类似于：[{"13-ns1": [{"13-ns1-app01": ["13-ns1-app01-pod01"]}]}]
-                            //循环这个数组，拿到数组中的对象：{"ns1": [{"13-ns1-app01": ["13-ns1-app01-pod01"]}]}
-                            for (let j = 0,len = (envObj[envKey]).length; j < len; j++) {
-                                let nsObj = envObj[envKey][j];
-                                //循环这个对象，拿到对象的key，就是我们需要比较的namespace的值
-                                for (let nsKey  in nsObj) {
-                                    if  (nsKey === this.nsSelected) {
-                                        //找这个namespace下的所有应用
-                                        //nsObj[nsKey]就是这个ns下的应用的数组
-                                        //循环这个数组，会得到{"13-ns1-app01": ["13-ns1-app01-pod01"]}对象
-                                        for (let k = 0,len = (nsObj[nsKey]).length; k < len; k++) {
-                                            for (let appKey  in nsObj[nsKey][k]) {
-                                                fetchAppByNsAndEnv.push(appKey)
-                                            }
-                                        }
-                                    }
-                                }
+                const deployList = [];
+                if (this.envSelected && this.nsSelected ) {
+                    const clusterInfo = this.envClusterInfo[this.envSelected];
+                    for (let i = 0,len = clusterInfo.length; i < len; i++) {
+                        if (clusterInfo[i]['namespace'] === this.nsSelected) {
+                            if (deployList.indexOf(clusterInfo[i]['deploy']) === -1) {
+                                deployList.push(clusterInfo[i]['deploy'])
                             }
                         }
                     }
                 }
-                return fetchAppByNsAndEnv
+
+                return deployList
             },
             fetchPodByAppandNsAndEnv () {
-                const fetchPodByAppandNsAndEnv = [];
-                //根据envSelected的值和namespace的值及app的值来计算出pod的数组
-                for (let i = 0,len = this.allEnvInfo.length; i < len; i++) {
-                    //this.allEnvInfo[i]是一个对象
-                    //它的值类似于：{"13": [{"ns1": [{"13-ns1-app01": ["13-ns1-app01-pod01"]}]}]}
-                    let envObj = this.allEnvInfo[i];
-                    for (let envKey  in envObj) {
-                        if ( envKey === this.envSelected) {
-                            //envObj[envKey]是一个数组，数组里的成员是对象，对象的key是namespace的名字
-                            //数组类似于：[{"13-ns1": [{"13-ns1-app01": ["13-ns1-app01-pod01"]}]}]
-                            //循环这个数组，拿到数组中的对象：{"ns1": [{"13-ns1-app01": ["13-ns1-app01-pod01"]}]}
-                            for (let j = 0,len = (envObj[envKey]).length; j < len; j++) {
-                                let nsObj = envObj[envKey][j];
-                                //循环这个对象，拿到对象的key，就是我们需要比较的namespace的值
-                                for (let nsKey  in nsObj) {
-                                    if  (nsKey === this.nsSelected) {
-                                        //找这个namespace下的所有应用
-                                        //nsObj[nsKey]就是这个ns下的应用的数组
-                                        //循环这个数组，会得到{"13-ns1-app01": ["13-ns1-app01-pod01"]}对象
-                                        for (let k = 0,len = (nsObj[nsKey]).length; k < len; k++) {
-                                            let appObj = nsObj[nsKey][k];
-                                            for (let appKey  in appObj) {
-                                                if (appKey === this.appSelected) {
-                                                    //去循环["13-ns1-app01-pod01"]这个数组
-                                                    for (let m = 0,len = (appObj[appKey]).length; m < len; m++) {
-                                                        fetchPodByAppandNsAndEnv.push(appObj[appKey][m])
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                const podList = [];
+                if ( this.envSelected && this.nsSelected && this.appSelected ) {
+                    const clusterInfo = this.envClusterInfo[this.envSelected];
+                    for (let i = 0,len = clusterInfo.length; i < len; i++) {
+                        if (clusterInfo[i]['namespace'] === this.nsSelected &&
+                            clusterInfo[i]['deploy'] === this.appSelected
+                        ) {
+                            if (podList.indexOf(clusterInfo[i]['pod_name']) === -1) {
+                                podList.push(clusterInfo[i]['pod_name'])
                             }
                         }
                     }
                 }
-                return fetchPodByAppandNsAndEnv
+
+                return podList
             }
         },
         methods: {
@@ -186,27 +128,31 @@
             },
             //发送ajax请求，获取环境信息
             getEnvsInfo () {
-                axios.get('/api/envs').then(this.getEnvsSuccess);
+                axios.get('/api/clusterinfo').then(this.getEnvsSuccess);
             },
             //ajax返回的是一个promise对象，这是回调函数
             getEnvsSuccess (res) {
                 res = res.data;
-                if (res.ret && res.all_env_info) {
-                    this.allEnvInfo = res.all_env_info
+                if (res.ret && res.env ) {
+                    this.envs = res.env;
+                    if (res.env_cluster_info) {
+                        this.envClusterInfo = res.env_cluster_info
+                    }
                 }
             },
             handleLogQuery () {
                 if (this.podSelected) {
-                    axios.get('/api/log').then(this.getLogSuccess);
+                    let url = '/api/querylog?env=' + this.envSelected +
+                      '&namespace=' + this.nsSelected + '&pod_name=' + this.podSelected;
+                    axios.get(url).then(this.getLogSuccess);
                 } else {
                     alert("请选择pod")
                 }
-
             },
             getLogSuccess (res) {
                 res = res.data;
-                if (res.ret && res.log) {
-                    this.logList = res.log
+                if (res) {
+                    this.logList = res
                 }
             }
         },
