@@ -68,7 +68,6 @@
         computed: {
             //只有当logList有数据才显示日志内容
             showLog () {
-                console.log(this.logList.length);
                 return  this.logList.length
             },
             //只有当refreshLog为真，才显示"日志刷新已关闭"
