@@ -1,19 +1,20 @@
 <template>
   <div>
     <common-header></common-header>
-    <home-content></home-content>
+    <pod-content></pod-content>
   </div>
 </template>
 
 <script>
   import CommonHeader from '../common/Header'
-  import HomeContent from './components/Content'
+  import PodContent from './components/Content'
 
     export default {
-        name: "Home",
+        name: "Pod",
         components: {
             CommonHeader,
-            HomeContent,
+            // HomeHeader,
+            PodContent,
         },
     }
 </script>

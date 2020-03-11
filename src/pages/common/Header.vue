@@ -1,7 +1,7 @@
 <template>
     <div class="header">
       <div class="logo">
-        <img class="img" src="../../../assets/logo.png"  />
+        <img class="img" src="../../assets/logo.png"  />
       </div>
       <div class="app-name">
         <p>容器平台应用日志查询系统</p>
@@ -11,7 +11,7 @@
 
 <script>
     export default {
-        name: "HomeHeader"
+        name: "CommonHeader"
     }
 </script>
 
