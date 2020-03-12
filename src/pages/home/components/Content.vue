@@ -2,8 +2,8 @@
   <div class="container">
     <div class="sidebar">
       <div class="search">
-        <input class="search-input" placeholder="输入要查询的日志关键字">
-        <button class="btn">查询</button>
+        <input class="search-input" v-model="keyword" placeholder="输入日志关键字">
+        <button class="btn" @click="handleQueryClick">查询</button>
       </div>
       <router-link to="/pod">
         <button class="link-to-pod btn">转到pod日志查询页面</button>
@@ -21,8 +21,36 @@
 </template>
 
 <script>
+    import axios from 'axios'
     export default {
         name: "HomeContent",
+        data () {
+            return {
+                keyword: ""
+            }
+        },
+        methods: {
+            handleQueryClick () {
+                if (!this.keyword) {
+                    alert("请输入用于查询日志的关键字")
+                } else {
+                    console.log(this.keyword)
+                    // let queryUrl = '/api/querycontent?keyword="' + this.keyword + '"';
+                    let queryUrl = '/api/querycontent?keyword=' + this.keyword;
+                    console.log(queryUrl)
+                    axios.get(queryUrl).then(
+                        this.getQuerySuccess
+                    )
+                }
+            },
+            getQuerySuccess (res) {
+                res = res.data;
+                if (res.ret && res.env_content_query_result) {
+                    console.log(res)
+                }
+
+            }
+        }
     }
 </script>
 

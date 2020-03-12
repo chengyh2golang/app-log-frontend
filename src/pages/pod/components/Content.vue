@@ -5,18 +5,21 @@
         <li>
           <p>环境</p>
           <select v-model="envSelected">
+            <option disabled value="">请选择</option>
             <option v-for="item of envs" :key="item" :value="item">{{item}}</option>
           </select>
         </li>
         <li>
           <p>项目</p>
           <select v-model="nsSelected">
+            <option disabled value="">请选择</option>
             <option v-for="item of fetchNsByEnv" :key="item" :value="item">{{item}}</option>
           </select>
         </li>
         <li>
           <p>应用</p>
           <select v-model="appSelected">
+            <option disabled value="">请选择</option>
             <option v-for="item of fetchAppByNsAndEnv" :key="item"
                     :value="item">{{item}}
             </option>
@@ -25,6 +28,7 @@
         <li>
           <p>pod</p>
           <select v-model="podSelected">
+            <option disabled value="">请选择</option>
             <option v-for="item of fetchPodByAppandNsAndEnv" :key="item"
                     :value="item">{{item}}
             </option>
