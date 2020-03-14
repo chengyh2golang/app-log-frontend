@@ -10,7 +10,9 @@
       </router-link>
 
     </div>
-    <div class="search-result" v-if="show">
+    <div class="error-content" v-if="errored">查询出现了错误！</div>
+    <div class="search-result" v-else>
+      <div v-if="isExecQuery">正在执行查询...</div>
       <div v-if="haveContent">
         <div class="search-result-env" v-for="env of envArr"  :key="env">
           <div class="search-result-env-ns" v-for="ns of fetchNsbyEnv(env)" :key="ns">
@@ -26,8 +28,8 @@
             </div>
           </div>
         </div>
-    </div>
-      <div v-else>没有查找到匹配的内容！</div>
+      </div>
+      <div v-if="haveNoCotent">没有查到匹配的内容！</div>
     </div>
   </div>
 
@@ -39,6 +41,7 @@
         name: "HomeContent",
         data () {
             return {
+                errored: false,
                 keyword: "",
                 queryResultMap: Object,
                 envArr: [],
@@ -51,15 +54,18 @@
             haveContent () {
                 return this.queryResultMap
             },
-
+            haveNoCotent () {
+                return !this.isExecQuery && !this.haveContent;
+            }
 
         },
         methods: {
-            handleQueryClick () {
+            handleQueryClick () { //实现逻辑跟pod查询log的逻辑类似，详见pod查询的注释部分
                 if (!this.keyword) {
                     alert("请输入用于查询日志的关键字")
                 } else {
                     this.isExecQuery = true;
+                    this.errored = false;
                     if (this.queryResultMap) {
                         this.queryResultMap = null;
                         this.envArr = [];
@@ -70,8 +76,9 @@
                     this.timer = setTimeout( () => {
                         this.show = true;
                         let queryUrl = '/api/querycontent?keyword=' + this.keyword;
-                        axios.get(queryUrl).then(this.getQuerySuccess);
-                        this.isExecQuery = false;
+                        axios.get(queryUrl).then(this.getQuerySuccess)
+                            .catch( error => {this.errored = true})
+                            .finally(() => this.isExecQuery = false);
                     },500);
                 }
             },
@@ -167,14 +174,24 @@
         border-radius .2rem
         padding .05rem
         background #25a4bb
-    .search-result
+    .error-content
       border 2px solid #eee
       float left
       width 70%
       margin-top .2rem
       margin-left .2rem
       font-size .32rem
+    .search-result
+
+      float left
+      width 70%
+      margin-top .2rem
+      margin-left .2rem
+      font-size .32rem
       li {
+        border-bottom  2px solid #eee
+        border-left  2px solid #eee
+        border-right  2px solid #eee
         padding .05rem
         border-bottom 1px solid #ccc
       }

@@ -35,7 +35,7 @@
           </select>
         </li>
         <li>
-          <button class="btn" @click="handleLogQuery">开始查询</button>
+          <button class="btn " @click="handleLogQuery">开始查询</button>
         </li>
         <li>
           <router-link to="/">
@@ -49,8 +49,9 @@
     <div class="log-content" v-else>
       <div v-if="isExecQuery">正在执行查询...</div>
       <ul>
-        <li v-for="item of logList" :key="item.id">{{item.message}}</li>
+        <li  v-for="item of logList" :key="item.id">{{item.message}}</li>
       </ul>
+      <div class="" v-if="haveNoContent">没有查到pod的日志信息，请稍后再试！</div>
     </div>
     <div style="display: none" class="sidebar-right">
       <div v-if="showLog">
@@ -58,6 +59,7 @@
         <button class="refresh-log-switch" @click="handleClickRefresh" v-else>日志刷新已开启</button>
       </div>
     </div>
+
 
   </div>
 </template>
@@ -70,11 +72,12 @@
             return {
                 errored: false,
                 isExecQuery: false,
+                isQueryFinished: false,
                 timer: null,
                 refreshLog: false,
                 logList: [],
                 envClusterInfo: Object,
-                envSelected: '',
+                envSelected: 'env6',
                 nsSelected: '',
                 appSelected: '',
                 podSelected: '',
@@ -90,6 +93,9 @@
             //否则显示"日志刷新已打开"
             showLogRefresh () {
                 return !this.refreshLog
+            },
+            haveNoContent () {
+                return this.isQueryFinished && !this.logList.length;
             },
             fetchNsByEnv () {
                 const nsList = [];
@@ -143,7 +149,8 @@
             },
             //发送ajax请求，获取环境信息
             getEnvsInfo () {
-                axios.get('/api/clusterinfo').then(this.getEnvsSuccess);
+                axios.get('/api/clusterinfo').then(this.getEnvsSuccess)
+                    .catch( error => {alert("调用/api/clusterinfo获取集群信息出错！")});
             },
             //ajax返回的是一个promise对象，这是回调函数
             getEnvsSuccess (res) {
@@ -157,7 +164,14 @@
             },
             handleLogQuery () {
                 if (this.podSelected) {
+                    //当点击查询之后，把之前的错误状态：errored先重新置为false
+                    //由promise的执行结果来重新修改该变量，如果api调用失败，则改为true
                     this.errored = false;
+                    //在执行被调用完成之前，设置为false，查询执行完成之后才改写为true
+                    //isQueryFinished这个变量是为了计算出haveNoContent的结果而服务的
+                    //如果isQueryFinished为true，且logList没有查到返回值，才显示haveNoContent这个div的信息
+                    //即在前台展示：“没有查到匹配的内容”
+                    this.isQueryFinished = false;
                     this.isExecQuery = true; //这是为了实现函数节流，通过定义sExecQuery和timer来实现
                     if (this.logList) { //在执行查询之前，先判断上一次查询的logList是否为空，如果不为空，清除掉
                         this.logList = []
@@ -166,11 +180,18 @@
                         clearTimeout(this.timer) //如果在500毫秒的时间范围内，又做了一次query的操作，就把上次的query给清除掉
                     }
                     this.timer = setTimeout( () => {
+                        //拼接出ajax调用的url，使用的时候在URL中通过？携带params的方式给后端api传参数
+                        //后端通过r.URL.Query().Get("env")来解析url参数
                         let url = '/api/querylog?env=' + this.envSelected +
                             '&namespace=' + this.nsSelected + '&pod_name=' + this.podSelected;
+                        //axios调用，返回的是一个promise，所以调用then方法来执行回调
+                        //通过配置catch和finally来控制报错和状态更新
                         axios.get(url).then(this.getLogSuccess)
                             .catch( error => {this.errored = true})
-                            .finally(() => this.isExecQuery = false);
+                            .finally( () => {
+                                this.isExecQuery = false; //执行完成之后，把正在执行isExecQuery设置为false
+                                this.isQueryFinished = true} //执行完成后，把isQueryFinished设置为true
+                                );
                     },500);
                 } else {
                     alert("请选择pod")
@@ -180,6 +201,7 @@
                 res = res.data;
                 if (res) {
                     this.logList = res
+
                 }
             }
         },
@@ -192,22 +214,19 @@
 
 <style lang="stylus" scoped>
   .main
-    overflow hidden
-    margin-top .2rem
     .sidebar-left
       overflow hidden
       position relative
-      float left
       text-align center
-      min-width: 5rem;
-      padding-bottom .4rem
-      border 2px solid #eee
+      padding-bottom .2rem
+      border-bottom  2px solid #eee
       font-family '微软雅黑'
       font-size 20px
       .btn {
         padding .05rem
         background orange
         border-radius .2rem
+        margin-top .3rem
       }
       .btn:hover {
         color #fff
@@ -215,7 +234,9 @@
       .link-to-home
         background #25a4bb
       li {
-        margin-top .4rem;
+        float left
+        margin-left 20px
+        margin-top .1rem;
         padding .1rem 0
       }
       p {
@@ -226,27 +247,26 @@
       }
 
     .no-log-content
-      float left
       border 2px solid #eee
       margin-left .1rem
       width 60%
       font-size .4rem
     .log-content
-      border 2px solid #eee
-      float left
-      margin-left .1rem
-      width 70%
+      /*border 2px solid #eee*/
+      width 1200px
+      margin: 0 auto
       overflow hidden
-      font-size .32rem
+      font-size .4rem
       /*white-space normal
       word-wrap break-word
       word-break break-all*/
       li {
         padding .05rem
-        border-bottom 1px solid #ccc
+        border-bottom  1px solid #ccc
+        border-left  1px solid #ccc
+        border-right  1px solid #ccc
       }
     .sidebar-right
-      float left
       margin-left .1rem
       width 200px;
       height 200px;
