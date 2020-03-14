@@ -50,12 +50,14 @@
         <li v-for="item of logList" :key="item.id">{{item.message}}</li>
       </ul>
     </div>
-    <div class="sidebar-right">
+    <div class="no-log-content" v-else>没有找到日志！</div>
+    <div style="display: none" class="sidebar-right">
       <div v-if="showLog">
         <button class="refresh-log-switch" @click="handleClickRefresh" v-if="showLogRefresh">日志刷新已关闭</button>
         <button class="refresh-log-switch" @click="handleClickRefresh" v-else>日志刷新已开启</button>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -65,6 +67,8 @@
         name: "PodContent",
         data () {
             return {
+                isExecQuery: false,
+                timer: null,
                 refreshLog: false,
                 logList: [],
                 envClusterInfo: Object,
@@ -151,13 +155,27 @@
             },
             handleLogQuery () {
                 if (this.podSelected) {
-                    let url = '/api/querylog?env=' + this.envSelected +
-                      '&namespace=' + this.nsSelected + '&pod_name=' + this.podSelected;
-                    axios.get(url).then(this.getLogSuccess);
+                    this.isExecQuery = true; //这是为了实现函数节流，通过定义sExecQuery和timer来实现
+                    if (this.logList) { //在执行查询之前，先判断上一次查询的logList是否为空，如果不为空，清除掉
+                        this.logList = []
+                    }
+                    if (this.isExecQuery) {  //如果已经正在执行query，通过节流来限制函数执行的频率
+                        clearTimeout(this.timer) //如果在500毫秒的时间范围内，又做了一次query的操作，就把上次的query给清除掉
+                    }
+                    this.timer = setTimeout( () => {
+                        let url = '/apis/querylog?env=' + this.envSelected +
+                            '&namespace=' + this.nsSelected + '&pod_name=' + this.podSelected;
+                        axios.get(url).then(this.getLogSuccess).catch(this.getLogFailed);
+                        this.isExecQuery = false;
+                    },500);
                 } else {
                     alert("请选择pod")
                 }
             },
+            getLogFailed (res) {
+                console.log("访问出错：",res)
+            },
+
             getLogSuccess (res) {
                 res = res.data;
                 if (res) {
@@ -207,13 +225,22 @@
         background #ccc
       }
 
+    .no-log-content
+      float left
+      border 2px solid #eee
+      margin-left .1rem
+      width 60%
+      font-size .4rem
     .log-content
       border 2px solid #eee
       float left
       margin-left .1rem
-      width 60%
+      width 75%
       overflow hidden
-      font-size .4rem
+      font-size .32rem
+      /*white-space normal
+      word-wrap break-word
+      word-break break-all*/
       li {
         padding .05rem
         border-bottom 1px solid #ccc

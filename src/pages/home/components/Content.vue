@@ -17,7 +17,7 @@
             <div v-for="deploy of fetchDeployByNsAndEnv(env,ns)" :key="deploy">
               <ul v-for="podName of fetchPodNameByDeployAndNsAndEnv(env,ns,deploy)"
                   :key="podName">
-                <li>项目: {{ns}}, 应用: {{deploy}}, Pod: {{podName}}</li>
+                <li class="title">项目: {{ns}}, 应用: {{deploy}}, pod: {{podName}}</li>
                 <li v-for="item of fetchMsgByPodNameAndDeployAndNsAndEnv(env,ns,deploy,podName)"
                     :key="item.id">
                   {{item.message}}
@@ -27,7 +27,7 @@
           </div>
         </div>
     </div>
-    <div v-else>没有查到匹配的内容！</div>
+      <div v-else>没有查找到匹配的内容！</div>
     </div>
   </div>
 
@@ -43,30 +43,40 @@
                 queryResultMap: Object,
                 envArr: [],
                 show: false,
+                isExecQuery: false,
+                timer: null
             }
         },
         computed: {
             haveContent () {
                 return this.queryResultMap
-            }
+            },
+
+
         },
         methods: {
             handleQueryClick () {
                 if (!this.keyword) {
                     alert("请输入用于查询日志的关键字")
                 } else {
+                    this.isExecQuery = true;
                     if (this.queryResultMap) {
                         this.queryResultMap = null;
                         this.envArr = [];
                     }
-                    this.show = true;
-                    let queryUrl = '/api/querycontent?keyword=' + this.keyword;
-                    axios.get(queryUrl).then(
-                        this.getQuerySuccess
-                    )
+                    if (this.isExecQuery) {
+                        clearTimeout(this.timer)
+                    }
+                    this.timer = setTimeout( () => {
+                        this.show = true;
+                        let queryUrl = '/api/querycontent?keyword=' + this.keyword;
+                        axios.get(queryUrl).then(this.getQuerySuccess);
+                        this.isExecQuery = false;
+                    },500);
                 }
             },
             getQuerySuccess (res) {
+
                 res = res.data;
                 if (res.ret && res.env_content_query_result) {
                     this.queryResultMap = res.env_content_query_result;
@@ -160,12 +170,14 @@
     .search-result
       border 2px solid #eee
       float left
-      width 60%
+      width 70%
       margin-top .2rem
       margin-left .2rem
-      font-size .4rem
+      font-size .32rem
       li {
         padding .05rem
         border-bottom 1px solid #ccc
       }
+      .title
+        background #ccc
 </style>
