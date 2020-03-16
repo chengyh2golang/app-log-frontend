@@ -35,6 +35,9 @@
           </select>
         </li>
         <li>
+          <date-picker @pickStart="handlePickTime"></date-picker>
+        </li>
+        <li>
           <button class="btn " @click="handleLogQuery">开始查询</button>
         </li>
         <li>
@@ -43,8 +46,9 @@
           </router-link>
         </li>
       </ul>
-
     </div>
+    <div>{{startTime}}---------{{endTime}}</div>
+
     <div class="no-log-content" v-if="errored">查询出现了错误！</div>
     <div class="log-content" v-else>
       <div v-if="isExecQuery">正在执行查询...</div>
@@ -66,8 +70,12 @@
 
 <script>
     import axios from 'axios'
+    import DatePicker from '../../common/Datepicker'
     export default {
         name: "PodContent",
+        components: {
+            DatePicker
+        },
         data () {
             return {
                 errored: false,
@@ -81,10 +89,16 @@
                 nsSelected: '',
                 appSelected: '',
                 podSelected: '',
-                envs: []
+                envs: [],
+                startTime: "",
+                endTime: ""
             }
         },
         computed: {
+            compactTime() {
+                return this.endTime.toString()
+            },
+
             //只有当logList有数据才显示日志内容
             showLog () {
                 return  this.logList.length
@@ -140,7 +154,11 @@
                 }
 
                 return podList
-            }
+            },
+            // fetchDate () {
+            //     let i =  this.$store.state.datePickerStartTime.valueOf();
+            //
+            // }
         },
         methods: {
             //当点击日志刷新按钮时，做取反操作
@@ -183,7 +201,8 @@
                         //拼接出ajax调用的url，使用的时候在URL中通过？携带params的方式给后端api传参数
                         //后端通过r.URL.Query().Get("env")来解析url参数
                         let url = '/api/querylog?env=' + this.envSelected +
-                            '&namespace=' + this.nsSelected + '&pod_name=' + this.podSelected;
+                            '&namespace=' + this.nsSelected + '&pod_name=' + this.podSelected +
+                          '&start_time=' + this.startTime + '&end_time=' +this.endTime;
                         //axios调用，返回的是一个promise，所以调用then方法来执行回调
                         //通过配置catch和finally来控制报错和状态更新
                         axios.get(url).then(this.getLogSuccess)
@@ -203,6 +222,10 @@
                     this.logList = res
 
                 }
+            },
+            handlePickTime (arr) {
+                this.startTime = arr[0].valueOf();
+                this.endTime = arr[1].valueOf();
             }
         },
         mounted() {
