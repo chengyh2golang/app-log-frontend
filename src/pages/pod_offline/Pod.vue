@@ -1,23 +1,24 @@
 <template>
   <div>
     <common-header :titleInfo="titleInfo"></common-header>
-    <home-content></home-content>
+    <pod-content></pod-content>
   </div>
 </template>
 
 <script>
   import CommonHeader from '../common/Header'
-  import HomeContent from './components/Content'
+  import PodContent from './components/Content'
 
     export default {
-        name: "Home",
+        name: "PodOffline",
         components: {
             CommonHeader,
-            HomeContent,
+            // HomeHeader,
+            PodContent,
         },
         data () {
             return {
-                titleInfo: "容器平台应用日志查询系统"
+                titleInfo: "离线应用日志查询系统"
             }
         }
     }

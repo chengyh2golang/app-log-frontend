@@ -4,14 +4,17 @@
         <img class="img" src="../../assets/logo.png"  />
       </div>
       <div class="app-name">
-        <p>容器平台应用日志查询系统</p>
+        <p>{{titleInfo}}</p>
       </div>
     </div>
 </template>
 
 <script>
     export default {
-        name: "CommonHeader"
+        name: "CommonHeader",
+        props: {
+            titleInfo: String
+        }
     }
 </script>
 

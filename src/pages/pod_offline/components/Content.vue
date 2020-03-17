@@ -35,7 +35,7 @@
           </select>
         </li>
         <li>
-          <date-picker @pickStart="handlePickTime"></date-picker>
+          <date-picker @pickStart="handlePickTime" ></date-picker>
         </li>
         <li>
           <button class="btn " @click="handleLogQuery">开始查询</button>
@@ -165,8 +165,8 @@
             },
             //发送ajax请求，获取环境信息
             getEnvsInfo () {
-                axios.get('/api/clusterinfo').then(this.getEnvsSuccess)
-                    .catch( error => {alert("调用/api/clusterinfo获取集群信息出错！")});
+                axios.get('/api/historyclusterinfo').then(this.getEnvsSuccess)
+                    .catch( error => {alert("调用/api/historyclusterinfo获取集群信息出错！")});
             },
             //ajax返回的是一个promise对象，这是回调函数
             getEnvsSuccess (res) {
@@ -179,6 +179,7 @@
                 }
             },
             handleLogQuery () {
+                console.log(this.startTime,this.endTime);
                 if (this.podSelected && this.startTime && this.endTime) {
                     //当点击查询之后，把之前的错误状态：errored先重新置为false
                     //由promise的执行结果来重新修改该变量，如果api调用失败，则改为true

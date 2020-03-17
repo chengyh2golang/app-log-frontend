@@ -1,6 +1,6 @@
 <template>
   <div>
-    <common-header></common-header>
+    <common-header :titleInfo="titleInfo"></common-header>
     <pod-content></pod-content>
   </div>
 </template>
@@ -16,6 +16,11 @@
             // HomeHeader,
             PodContent,
         },
+        data () {
+            return {
+                titleInfo: "在线应用日志查询系统"
+            }
+        }
     }
 </script>
 

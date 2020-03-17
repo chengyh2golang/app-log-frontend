@@ -3,7 +3,7 @@
     <div class="demonstration">选择查询时间范围</div>
       <el-date-picker
         class="date-picker"
-        v-model="value1"
+        v-model="startTime"
         type="date"
         placeholder="选择开始时间"
         @change="pickTime"
@@ -11,7 +11,7 @@
       </el-date-picker>
       <el-date-picker
         class="date-picker"
-        v-model="value2"
+        v-model="endTime"
         align="right"
         type="date"
         @change="pickTime"
@@ -36,24 +36,22 @@
                         return time.getTime() > Date.now()
                     }
                 },
-                value1: '',
-                value2: ''
+                startTime: "",
+                endTime: ""
             }
         },
         methods: {
             pickTime () {
-                if (this.value1 && this.value2) {
-                    if (this.value2.valueOf() >= this.value1.valueOf()) {
-                        this.$emit("pickStart",[this.value1,this.value2])
+                if (this.startTime && this.endTime) {
+                    if (this.endTime.valueOf() >= this.startTime.valueOf()) {
+                        this.$emit("pickStart",[this.startTime,this.endTime])
                     } else {
-                        alert("开始时间不能晚于结束时间");
-                        this.value1 = null;
+                        alert("开始时间不能晚于结束时间，请重新选择");
+                        this.startTime = null;
+                        this.endTime = null;
                     }
                 }
-
             }
-
-
         }
     }
 </script>

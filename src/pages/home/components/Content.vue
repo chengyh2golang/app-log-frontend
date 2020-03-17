@@ -2,12 +2,28 @@
   <div class="container">
     <div class="sidebar">
       <div class="search">
-          <input class="search-input" v-model="keyword" placeholder="输入日志关键字">
-        <button class="btn" @click="handleQueryClick">查询</button>
+        <div class="search-input-wrapper">
+          <input class="search-input" v-model="keyword"  @keyup.enter="handleQueryClick" placeholder="输入日志关键字">
+        </div>
+        <div class="date-picker-wrapper">
+          <date-picker @pickStart="handlePickTime"></date-picker>
+        </div>
+        <div class="btn-wrapper">
+          <button class="btn" @click="handleQueryClick">查询</button>
+        </div>
+
       </div>
       <router-link to="/pod">
-        <button class="link-to-pod btn">转到pod日志查询页面</button>
+        <button class="link-to-pod btn">跳转到在线应用日志查询</button>
       </router-link>
+      <div>
+        <router-link to="/pod-offline">
+          <button class="link-to-pod btn link-to-pod-offline">跳转到历史应用日志查询</button>
+        </router-link>
+      </div>
+
+
+
 
     </div>
     <div class="error-content" v-if="errored">查询出现了错误！</div>
@@ -37,8 +53,12 @@
 
 <script>
     import axios from 'axios'
+    import DatePicker from '../../common/Datepicker'
     export default {
         name: "HomeContent",
+        components: {
+            DatePicker,
+        },
         data () {
             return {
                 errored: false,
@@ -47,7 +67,9 @@
                 envArr: [],
                 show: false,
                 isExecQuery: false,
-                timer: null
+                timer: null,
+                startTime: "",
+                endTime: ""
             }
         },
         computed: {
@@ -61,9 +83,7 @@
         },
         methods: {
             handleQueryClick () { //实现逻辑跟pod查询log的逻辑类似，详见pod查询的注释部分
-                if (!this.keyword) {
-                    alert("请输入用于查询日志的关键字")
-                } else {
+                if (this.keyword && this.startTime && this.endTime) {
                     this.isExecQuery = true;
                     this.errored = false;
                     if (this.queryResultMap) {
@@ -75,11 +95,14 @@
                     }
                     this.timer = setTimeout( () => {
                         this.show = true;
-                        let queryUrl = '/api/querycontent?keyword=' + this.keyword;
+                        let queryUrl = '/api/querycontent?keyword=' + this.keyword + '&start_time=' +
+                            this.startTime + '&end_time=' +this.endTime;
                         axios.get(queryUrl).then(this.getQuerySuccess)
                             .catch( error => {this.errored = true})
                             .finally(() => this.isExecQuery = false);
                     },500);
+                } else {
+                    alert("请输入查询关键字和查询日期")
                 }
             },
             getQuerySuccess (res) {
@@ -144,6 +167,10 @@
                     }
                 }
                 return MsgList
+            },
+            handlePickTime (arr) {
+                this.startTime = arr[0].valueOf();
+                this.endTime = arr[1].valueOf();
             }
         }
     }
@@ -158,36 +185,57 @@
   .container
     height 200px
     .sidebar
-      min-width 5rem
+      width 100%
       float left
       margin-top .2rem
-      margin-left 1rem
+      overflow hidden
+      border-bottom 1px solid #ccc
+      padding-bottom .2rem
       .search
-        .search-input
-          padding .1rem
-          border 2px solid #bbb
+        float left
+        overflow hidden
+        margin-left 1rem
+        height 1.2rem
+        width 12rem
+        display flex
+        justify-content: flex-start
+        align-items flex-end
+        .search-input-wrapper
+          padding-right .2rem
+          .search-input
+            padding .1rem
+            border 2px solid #bbb
+        .date-picker-wrapper
+          padding-right .2rem
+          text-align center
         .btn
           border-radius .1rem
           padding .05rem
       .link-to-pod
-        margin-top .6rem
+        float left
+        margin-left 1rem
         border-radius .2rem
         padding .05rem
-        background #25a4bb
+        background lightblue
+        margin-top .5rem
+      .link-to-pod-offline
+        background #ccc
+
     .error-content
       border 2px solid #eee
       float left
       width 70%
       margin-top .2rem
-      margin-left .2rem
+      margin-left 1rem
       font-size .32rem
+      padding-top .2rem
     .search-result
-
       float left
       width 70%
-      margin-top .2rem
-      margin-left .2rem
+      margin-bottom  .3rem
+      margin-left 1rem
       font-size .32rem
+      padding-top .2rem
       li {
         border-bottom  2px solid #eee
         border-left  2px solid #eee
