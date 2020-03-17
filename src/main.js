@@ -2,7 +2,6 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './App'
-import router from './router'
 import fastClick from 'fastclick'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -11,6 +10,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 import './assets/styles/reset.css'
 import './assets/styles/border.css'
 import './assets/styles/iconfont.css'
+import router from './router'
 
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
