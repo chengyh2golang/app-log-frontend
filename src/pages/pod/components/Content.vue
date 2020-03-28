@@ -83,7 +83,7 @@
                 refreshLog: false,
                 logList: [],
                 envClusterInfo: Object,
-                envSelected: 'env6',
+                envSelected: '',
                 nsSelected: '',
                 appSelected: '',
                 podSelected: '',
@@ -281,15 +281,16 @@
 
     .log-content
       /*border 2px solid #eee*/
-      width 1200px
+      width  1200px
       margin: 0 auto
       overflow hidden
-      font-size .4rem
+      font-size .35rem
       /*white-space normal
       word-wrap break-word
       word-break break-all*/
       li {
         padding .05rem
+        word-wrap break-word
         border-bottom  1px solid #ccc
         border-left  1px solid #ccc
         border-right  1px solid #ccc

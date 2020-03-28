@@ -238,6 +238,7 @@
       padding-top .2rem
       li {
         border-bottom  2px solid #eee
+        word-wrap break-word
         border-left  2px solid #eee
         border-right  2px solid #eee
         padding .05rem
