@@ -21,6 +21,7 @@
 <style lang="stylus" scoped>
   .header
     overflow hidden
+    height 70
     background #bbb
     padding .2rem
     .logo

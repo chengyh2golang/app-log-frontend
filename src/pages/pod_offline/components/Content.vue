@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <div class="sidebar-left">
+    <div :class="offlineLogSearchClass">
       <ul>
         <li>
           <p>环境</p>
@@ -63,6 +63,7 @@
     </div>
 
 
+
   </div>
 </template>
 
@@ -76,6 +77,7 @@
         },
         data () {
             return {
+                offlineLogSearchClass: "log-search-menu",
                 errored: false,
                 isExecQuery: false,
                 isQueryFinished: false,
@@ -229,18 +231,67 @@
             handlePickTime (arr) {
                 this.startTime = arr[0].valueOf();
                 this.endTime = arr[1].valueOf();
+            },
+            handleScroll () {
+
+                const top = document.documentElement.scrollTop;
+                if (top > 70) {
+                    this.offlineLogSearchClass = "log-search-menu-fixed"
+                } else {
+                    this.offlineLogSearchClass = "log-search-menu"
+                }
             }
         },
         mounted() {
             //生命周期函数，用以发起ajax请求
             this.getEnvsInfo();
+        },
+        activated() {
+            window.addEventListener('scroll',this.handleScroll)
         }
     }
 </script>
 
 <style lang="stylus" scoped>
   .main
-    .sidebar-left
+    .log-search-menu-fixed
+      overflow hidden
+      position fixed
+      top 0
+      left 0
+      right 0
+      background #fff
+      text-align center
+      padding-bottom .2rem
+      border-bottom  2px solid #eee
+      font-family '微软雅黑'
+      font-size 20px
+      .btn {
+        padding .05rem
+        background orange
+        border-radius .2rem
+        margin-top .3rem
+      }
+      .btn:hover {
+        color #fff
+      }
+      .link-to-home
+        background #25a4bb
+        margin-left .6rem
+      li {
+        float left
+        margin-left 20px
+        margin-top .1rem;
+        padding .1rem 0
+      }
+      p {
+        padding-bottom .1rem
+      }
+      select {
+        background #ccc
+      }
+
+    .log-search-menu
       overflow hidden
       position relative
       text-align center
